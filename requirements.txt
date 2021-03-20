@@ -1,0 +1,6 @@
+asyncio-mqtt
+asyncio-throttle
+cached-property
+paho-mqtt
+https://github.com/flavio-fernandes/pymyq/archive/322f2b2a707d5f2d687119fd310b0f86d6e752cc.tar.gz
+strictyaml

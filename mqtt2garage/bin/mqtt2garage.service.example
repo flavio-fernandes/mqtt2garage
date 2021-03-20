@@ -1,0 +1,11 @@
+[Unit]
+Description=MQTT front end wrapper to github.com/arraylabs/pymyq
+
+[Service]
+User=vagrant
+Type=simple
+ExecStart=/vagrant/mqtt2garage/bin/start_mqtt2garage.sh /home/vagrant/mqtt2garage.config.yaml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

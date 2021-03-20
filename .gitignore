@@ -1,0 +1,10 @@
+*.pyc
+*~
+.DS_Store
+.eggs
+.tox
+.idea
+env
+.env
+mqtt2garage.egg-info
+data/config.yaml.flaviof

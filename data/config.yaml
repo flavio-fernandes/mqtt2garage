@@ -1,0 +1,41 @@
+---
+
+knobs:
+    # Note: normally you don't set these... here just to show how to
+    # devel and debug
+    # log_to_console: false
+    # log_level_debug: false
+globals:
+    # every device will have this prefix in its topic, followed
+    # by its serial number or alias. Example: /myq/1234567890AB
+    topic_prefix: /myq
+    # [OPTIONAL] mqtt reconnect interval, in seconds
+    # reconnect_interval: 13
+    # [OPTIONAL] myQ devices update poll interval, in seconds
+    # poll_interval: 121
+    # [OPTIONAL] periodically publish device states, in seconds (0=>off)
+    # periodic_mqtt_report: 0
+    # [OPTIONAL] user agent used when connecting to myQ
+    # user_agent: '#RANDOM:5'
+mqtt:
+    # ip/dns for the mqtt broker
+    host: 192.168.1.250
+    # [OPTIONAL] mqtt client id presented to broker
+    # client_id: mqtt2garage
+    # [OPTIONAL] username for mqtt broker connection
+    # username: foo
+    # [OPTIONAL] password for mqtt broker connection
+    # password: bar
+myq:
+    # Your MyQ credentials go here. Do not share it!
+    email: user@example.com
+    password: super_secret_stuff
+alias:
+    # [OPTIONAL] you can map a device_id to a name.
+    # Doing so, will also allow you to refer to
+    # garage door mqtt topic by that name instead
+    # of serial its number. Example: /myq/tesla
+    CG080032510E: vespa
+    CG080032511F: truck
+    CG080032512G: ferrari
+    CG080032513H: tesla
