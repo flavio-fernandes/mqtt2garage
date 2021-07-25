@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import asyncio
-from typing import Optional, Union, List
+from typing import Dict, List, Optional, Union
 
 from aiohttp import ClientSession
 from asyncio_throttle import Throttler
@@ -26,8 +26,8 @@ logger = log.getLogger()
 class RunState:
     def __init__(self):
         self.api: Optional[API] = None
-        self.garage_doors: dict[str, GarageDoor] = {}
-        self.topics: dict[str, str] = {}
+        self.garage_doors: Dict[str, GarageDoor] = {}
+        self.topics: Dict[str, str] = {}
 
 
 class GarageDoor:
