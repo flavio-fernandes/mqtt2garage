@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import asyncio
+import datetime as dt
 from typing import Dict, List, Optional, Union
 
 from aiohttp import ClientSession
@@ -13,7 +14,7 @@ from pymyq.garagedoor import (
     STATE_OPEN,
     STATE_OPENING,
     STATE_CLOSED,
-    # STATE_CLOSING,
+    STATE_CLOSING,
 )
 
 from mqtt2garage import log
@@ -38,6 +39,7 @@ class GarageDoor:
     def __init__(self, device: MyQDevice):
         self._device = device
         self._open_state: Optional[bool] = None
+        self._last_request_ts = None
 
     @classmethod
     def is_started(cls):
@@ -79,6 +81,7 @@ class GarageDoor:
             try:
                 rc = await self._device.open(wait_for_state=wait_for_state)
                 self._open_state = True
+                self._last_request_ts = dt.datetime.now()
             except MyQError as e:
                 logger.error(f"{self} unable to open_door: {e}")
             return rc
@@ -90,13 +93,15 @@ class GarageDoor:
             try:
                 rc = await self._device.close(wait_for_state=wait_for_state)
                 self._open_state = False
+                self._last_request_ts = dt.datetime.now()
             except MyQError as e:
                 logger.error(f"{self} unable to close_door: {e}")
             return rc
 
     @staticmethod
     def state_from_name(is_open: Optional[str]) -> bool:
-        return is_open in (STATE_OPEN, STATE_OPENING)
+        # Note: Consider door open when state is STATE_CLOSING as well.
+        return is_open in (STATE_OPEN, STATE_OPENING, STATE_CLOSING)
 
     @staticmethod
     def state_name(is_open: Optional[bool]) -> str:
@@ -194,9 +199,22 @@ async def handle_garage_poller(
         except RequestError as e:
             raise RuntimeError("Getting MyQ api failed") from e
 
+        cfg = Cfg()
         failures = 0
         while True:
             for garage_door in run_state.garage_doors.values():
+                # Skip doors that have recently changed state, so it is given time to quiesce
+                now = dt.datetime.now()
+                if garage_door._last_request_ts and (
+                    now
+                    < garage_door._last_request_ts
+                    + dt.timedelta(seconds=cfg.poll_interval * 3)
+                ):
+                    logger.debug(
+                        f"{garage_door} changed recently and will be skipped by pooler this time."
+                    )
+                    continue
+
                 curr_device_state = garage_door._device.state
                 is_open = garage_door.state_from_name(curr_device_state)
                 if is_open != garage_door._open_state:
