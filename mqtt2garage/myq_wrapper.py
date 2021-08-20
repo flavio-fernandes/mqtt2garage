@@ -9,7 +9,7 @@ from cached_property import cached_property
 from pymyq import login
 from pymyq.api import API
 from pymyq.device import MyQDevice
-from pymyq.errors import MyQError, RequestError
+from pymyq.errors import AuthenticationError, MyQError, RequestError
 from pymyq.garagedoor import (
     STATE_OPEN,
     STATE_OPENING,
@@ -165,9 +165,15 @@ class GarageDoor:
 
 async def _set_api(run_state: RunState, web_session):
     cfg = Cfg()
-    run_state.api = await login(
-        cfg.myq_email, cfg.myq_password, web_session, cfg.user_agent
-    )
+    try:
+        # raise AuthenticationError("testing this change")
+        run_state.api = await login(
+            cfg.myq_email, cfg.myq_password, web_session, cfg.user_agent
+        )
+    except AuthenticationError as e:
+        logger.error(f"Dampening login issue: {e}")
+        await asyncio.sleep(15)
+        raise e
     run_state.garage_doors, run_state.topics = {}, {}
     for account in run_state.api.accounts:
         logger.debug(f"Account Name: {run_state.api.accounts[account]}")
